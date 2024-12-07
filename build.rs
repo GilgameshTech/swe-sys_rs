@@ -1,10 +1,10 @@
+use std::collections::HashSet;
 use std::env;
 use std::io;
 use std::path::{Path, PathBuf};
 use std::sync::{Arc, RwLock};
-use std::collections::HashSet;
 
-use bindgen::callbacks::{ MacroParsingBehavior, ParseCallbacks };
+use bindgen::callbacks::{MacroParsingBehavior, ParseCallbacks};
 
 fn main() {
     let mut _cfg = cc::Build::new();
@@ -17,9 +17,10 @@ fn main() {
     let bindings = bindgen::Builder::default()
         .header("wrapper.h")
         .blocklist_function("__.*")
-        .clang_arg("-O2")
         .layout_tests(false)
-        .parse_callbacks(Box::new(MacroCallback {macros: macros.clone()}))
+        .parse_callbacks(Box::new(MacroCallback {
+            macros: macros.clone(),
+        }))
         .generate()
         .expect("Unable to generate bindings");
 
@@ -60,11 +61,11 @@ impl ParseCallbacks for MacroCallback {
     fn will_parse_macro(&self, name: &str) -> MacroParsingBehavior {
         self.macros.write().unwrap().insert(name.into());
 
-        if name == "FP_NORMAL" 
-        || name == "FP_SUBNORMAL" 
-        || name == "FP_ZERO" 
-        || name == "FP_NAN" 
-        || name == "FP_INFINITE" 
+        if name == "FP_NORMAL"
+            || name == "FP_SUBNORMAL"
+            || name == "FP_ZERO"
+            || name == "FP_NAN"
+            || name == "FP_INFINITE"
         {
             return MacroParsingBehavior::Ignore;
         }
